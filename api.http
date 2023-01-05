@@ -1,0 +1,29 @@
+
+//API BOMBEROS//
+
+/////////////////////////////////
+//  **End-points Cargos**  //////
+/////////////////////////////////
+
+###Test Cargos
+GET http://localhost:3000/cargos HTTP/1.1
+
+###Mostrar Cargos
+GET http://localhost:3000/cargos/mostrar HTTP/1.1
+
+###Mostrar unico Cargo
+GET http://localhost:3000/cargos/mostrar-unico/1 HTTP/1.1
+
+### Agregar Cargo
+POST http://localhost:3000/cargos/crear HTTP/1.1
+Content-Type: application/json
+
+{
+  "descripcion": "registro anyel"
+}
+
+###
+
+
+
+

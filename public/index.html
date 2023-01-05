@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="lista">
+            aqui los datos
+            </ul>
+        </nav>
+    </header>
+    <div><h4>esta es mi pagina principal</h4></div>
+
+    <script>
+        fetch('http://localhost:3000/cargos/mostrar', {
+        method: "GET"
+        })
+        .then(response => response.json()) 
+        .then(datos => {
+            
+            let cargos = datos.map(function(element){
+            return `<li>${element.descripcion}</li>`;
+            })
+            
+            let item = document.querySelector(".lista")
+            item.innerHTML =  cargos.join('')
+        
+        })
+        .catch(err => console.log(err));
+
+        
+    </script>    
+</body>
+
+</html>

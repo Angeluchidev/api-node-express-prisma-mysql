@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model bomberos {
+  id           Int       @id @default(autoincrement()) @db.SmallInt
+  cedula       String?   @db.Char(10)
+  nombre       String?   @db.VarChar(255)
+  ubicacion    String?   @db.VarChar(255)
+  jerarquia    String?   @db.VarChar(255)
+  cargo        String?   @db.VarChar(255)
+  ingreso      DateTime? @db.Date
+  correo       String?   @db.VarChar(255)
+  sueldo       Decimal?  @db.Decimal(17, 2)
+  nomina_id    Int?      @db.UnsignedSmallInt
+  subnomina_id Int?      @db.UnsignedSmallInt
+  ubicacion_id Int?      @db.UnsignedSmallInt
+  jerarquia_id Int?      @db.UnsignedSmallInt
+  cargo_id     Int?      @db.UnsignedSmallInt
+}
+
+model cargos {
+  id          Int     @id @default(autoincrement()) @db.UnsignedSmallInt
+  descripcion String  @unique(map: "descripcion") @default("") @db.VarChar(80)
+  datos       datos[]
+}
+
+model cargoslista {
+  id    Int     @id @default(autoincrement())
+  cargo String? @db.VarChar(255)
+}
+
+model conceptos {
+  id               Int            @id @default(autoincrement()) @db.UnsignedSmallInt
+  descripcion      String         @unique(map: "descripcion") @db.VarChar(50)
+  descripcionbreve String         @unique(map: "descripcionbreve") @db.Char(10)
+  tipo             conceptos_tipo
+  pagos            pagos[]
+}
+
+model datos {
+  id            Int                @id @default(autoincrement()) @db.UnsignedInt
+  periodoid     Int                @db.UnsignedSmallInt
+  departaid     Int                @db.UnsignedSmallInt
+  cargoid       Int                @db.UnsignedSmallInt
+  jerarquiaid   Int                @db.UnsignedSmallInt
+  tiponominaid  Int                @db.UnsignedSmallInt
+  subnominaid   Int                @db.UnsignedSmallInt
+  ingreso       DateTime           @db.Date
+  tipopersonal  datos_tipopersonal @default(C)
+  persona_id    Int                @default(0) @db.UnsignedInt
+  personas      personas           @relation(fields: [persona_id], references: [id], onUpdate: Restrict, map: "datos_ibfk_1")
+  periodos      periodos           @relation(fields: [periodoid], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "datos_ibfk_2")
+  departamentos departamentos      @relation(fields: [departaid], references: [id], onUpdate: Restrict, map: "datos_ibfk_3")
+  cargos        cargos             @relation(fields: [cargoid], references: [id], onUpdate: Restrict, map: "datos_ibfk_4")
+  tipo_nomina   tipo_nomina        @relation(fields: [tiponominaid], references: [id], onUpdate: Restrict, map: "datos_ibfk_5")
+  sub_nomina    sub_nomina         @relation(fields: [subnominaid], references: [id], onUpdate: Restrict, map: "datos_ibfk_6")
+  pagos         pagos[]
+
+  @@unique([periodoid, persona_id], map: "periodoid")
+  @@index([cargoid], map: "cargoid")
+  @@index([departaid], map: "departaid")
+  @@index([persona_id], map: "persona_id")
+  @@index([subnominaid], map: "subnominaid")
+  @@index([tiponominaid], map: "tiponominaid")
+}
+
+model departamentos {
+  id          Int     @id @default(autoincrement()) @db.UnsignedSmallInt
+  descripcion String  @db.VarChar(250)
+  datos       datos[]
+}
+
+model jerarquias {
+  id          Int    @id @default(autoincrement()) @db.UnsignedSmallInt
+  descripcion String @unique(map: "descripcion") @db.VarChar(80)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model pagos {
+  id         Int       @id @default(autoincrement()) @db.UnsignedMediumInt
+  reciboid   Int       @db.UnsignedInt
+  conceptoid Int       @db.UnsignedSmallInt
+  monto      Decimal   @db.Decimal(17, 2)
+  conceptos  conceptos @relation(fields: [conceptoid], references: [id], onUpdate: Restrict, map: "pagos_ibfk_1")
+  datos      datos     @relation(fields: [reciboid], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "pagos_ibfk_2")
+
+  @@unique([reciboid, conceptoid], map: "reciboid_2")
+  @@index([conceptoid], map: "conceptoid")
+  @@index([reciboid], map: "reciboid")
+}
+
+model periodos {
+  id          Int              @id @default(autoincrement()) @db.UnsignedSmallInt
+  descripcion String           @db.VarChar(40)
+  desde       DateTime         @db.Date
+  hasta       DateTime         @db.Date
+  anio        String           @db.Char(4)
+  estatus     periodos_estatus @default(Inactiva)
+  datos       datos[]
+
+  @@index([id], map: "id")
+}
+
+model personas {
+  id           Int                   @id @default(autoincrement()) @db.UnsignedInt
+  nacionalidad personas_nacionalidad
+  cedula       Int                   @db.UnsignedInt
+  nombres      String                @db.VarChar(60)
+  datos        datos[]
+
+  @@unique([nacionalidad, cedula], map: "nacionalidad")
+}
+
+model sub_nomina {
+  id          Int     @id @default(autoincrement()) @db.UnsignedSmallInt
+  descripcion String  @unique(map: "descripcion") @db.VarChar(100)
+  datos       datos[]
+}
+
+model tipo_nomina {
+  id          Int     @id @default(autoincrement()) @db.UnsignedSmallInt
+  descripcion String  @db.VarChar(50)
+  datos       datos[]
+}
+
+enum personas_nacionalidad {
+  V
+  E
+}
+
+enum conceptos_tipo {
+  A
+  D
+}
+
+enum periodos_estatus {
+  Pendiente
+  Inactiva
+  Activa
+}
+
+enum datos_tipopersonal {
+  F
+  C
+  S
+}
